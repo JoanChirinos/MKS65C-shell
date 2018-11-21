@@ -33,8 +33,6 @@ int main() {
     printf("%s: \n", cwd);
     free(cwd);
 
-    printf("%s\n", strerror(errno));
-
     // stores input into string @ args
     char* args;
     fgets(args, 1023, stdin);
@@ -43,6 +41,8 @@ int main() {
 
     // splits input into char**
     char** arg_array = parse_args(args);
+
+    printf("what I got: %s\n", args);
 
     // if the input is "exit", then quit shell
     if (!strcmp(arg_array[0], "exit")) {
