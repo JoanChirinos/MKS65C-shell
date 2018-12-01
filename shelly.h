@@ -9,3 +9,5 @@ void run_line(char*);
 char cd_exit(char**);
 
 void regular_execution();
+
+void input_execution(char**, char**);

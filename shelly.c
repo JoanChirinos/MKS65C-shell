@@ -30,7 +30,7 @@ char** parse_arg_array(char** arg_array, char* parse_at) {
   int index = 0;
   while (arg_array[index]) {
     if (!strcmp(arg_array[index], parse_at)) {
-      char** out = arg_array[index + 1];
+      char** out = &arg_array[index + 1];
       arg_array[index] = 0;
       return out;
     }
@@ -68,7 +68,7 @@ void run_line(char* arg_line) {
     // if there is |
 
     // if there is <
-    char* input = parse_arg_array(arg_array, "<");
+    char** input = parse_arg_array(arg_array, "<");
     if (!input) {
       input_execution(arg_array, input);
     }
@@ -81,7 +81,7 @@ void run_line(char* arg_line) {
 
 void input_execution(char** commands, char** in) {
   if (!fork()) {
-    
+
   }
 }
 
