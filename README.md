@@ -12,7 +12,7 @@
   - ```cd``` and ```exit```
 - Ignores extra whitespace between tokens
 
-## Failes/In Progress Features
+## Failed/In Progress Features
 - Multiple pipes in the same command
 - Using ```>``` and ```<``` in the same command
 - Tab completion
