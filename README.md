@@ -1,4 +1,4 @@
-# Joan's Wonderful-est Shell
+# Joan's Semi-Okay Halfway-Decent Shell
 
 ## Features
 - Prompt contains username and cwd, in flashy colors
