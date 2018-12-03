@@ -1,0 +1,14 @@
+args[0]: |ls -al |
+total 112
+drwxr-xr-x  12 JOAN  staff    384 Dec  2 12:06 .
+drwxr-xr-x  22 JOAN  staff    704 Dec  1 21:25 ..
+drwxr-xr-x  14 JOAN  staff    448 Dec  1 17:54 .git
+-rw-r--r--   1 JOAN  staff    430 Nov 19 15:13 .gitignore
+-rw-r--r--   1 JOAN  staff     14 Nov 19 15:13 README.md
+-rwxr-xr-x   1 JOAN  staff  14076 Dec  2 12:06 a.out
+-rw-r--r--   1 JOAN  staff     74 Dec  2 12:03 hi.txt
+-rw-r--r--   1 JOAN  staff    146 Dec  1 17:11 makefile
+-rw-r--r--   1 JOAN  staff     19 Dec  2 12:06 please.txt
+-rw-r--r--   1 JOAN  staff   5103 Dec  2 12:06 shelly.c
+-rw-r--r--   1 JOAN  staff    293 Dec  2 11:53 shelly.h
+-rw-r--r--   1 JOAN  staff   6056 Dec  2 12:06 shelly.o

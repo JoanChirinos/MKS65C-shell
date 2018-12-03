@@ -1,0 +1,10 @@
+README.md
+a.out
+hi.txt
+lmao.txt
+makefile
+please.txt
+shelly.c
+shelly.h
+shelly.o
+test.c
