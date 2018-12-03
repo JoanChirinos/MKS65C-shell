@@ -1,6 +1,9 @@
 /*
   Joan Chirinos
   Shell
+
+  Huge thanks to Camilla Cheng for help and emotional support cuz this project
+  made me wanna cry
 */
 
 #include <stdio.h>
@@ -12,25 +15,19 @@
 
 #include "shelly.h"
 
-/*
-parse_args
+/*========================================
 
-Takes char* args line and parse_at and splits line by parse_at into char**
+  trim
 
-params:
-  char* line
-  char* parse_at
-returns:
-  char**
-*/
+  Trims whitespace from start end end of char*
 
-void print_charss(char** lines) {
-  while (*lines){
-    printf("|%s|\n", *lines);
-    lines++;
-  }
-}
+  params:
+    char* to_trim : the char* being trimmed
 
+  returns:
+    char* : the trimmed char*
+    
+========================================*/
 char* trim(char* to_trim) {
   char* start = to_trim;
   while (*start == ' ') {
@@ -48,6 +45,22 @@ char* trim(char* to_trim) {
   return start;
 }
 
+/*========================================
+
+  parse_args
+
+  Splits a line by a char* delimiter, removing extra copies of the delimeter
+  Ex. parse_args("hello   I am   david", " ") --> ["hello", "I", "am", "david"]
+
+  params:
+    char* line      : the line to be split
+    char* parse_at  : the delimiter
+
+  returns:
+    char**  : array of strings after splitting
+
+========================================*/
+
 char** parse_args(char* line, char* parse_at) {
   char** args = calloc(sizeof(char*), 101);
   int index = 0;
@@ -63,35 +76,17 @@ char** parse_args(char* line, char* parse_at) {
   return args;
 }
 
-/*
-parse_arg_array
+/*========================================
 
-Takes
+  print_prompt
 
-params:
-  char** arg_array
-  char*  parse_at
+  Prints the joan-shell prompt
 
-returns:
-  char**
-*/
-char** parse_arg_array(char** arg_array, char* parse_at) {
-  char** out = calloc(sizeof(char*), 10);
-  int index = 0;
-  while (arg_array[index]) {
-    printf("%d: ", index);
-    printf("%s\n", arg_array[index]);
-    int comp = strcmp(arg_array[index], parse_at);
-    printf("comp: %d\n", comp);
-    if (!comp) {
-      char** out = &arg_array[index + 1];
-      arg_array[index] = 0;
-      return out;
-    }
-    index++;
-  }
-  return 0;
-}
+  params: None
+
+  returns: None
+
+========================================*/
 
 void print_prompt() {
   char* cwd = getcwd(NULL, 1024);
@@ -103,6 +98,19 @@ void print_prompt() {
   free(cwd);
 }
 
+/*========================================
+
+  get_args
+
+  Takes user input using fgets and replaces \n with NULL
+
+  params: None
+
+  returns:
+    char* : the input
+
+========================================*/
+
 char* get_args() {
   char* args = calloc(sizeof(char), 1024);
   fgets(args, 1023, stdin);
@@ -110,6 +118,20 @@ char* get_args() {
   if (p) *p = 0;
   return args;
 }
+
+/*========================================
+
+  run_line
+
+  Takes a line of arguments, splits them by semicolon, then runs each line
+  Ex. ls -al; ls | wc ;  ls > contents.txt
+
+  params:
+    char* arg_line  : the line of arguments
+
+  returns: None
+
+========================================*/
 
 void run_line(char* arg_line) {
   char* p = strchr(arg_line, '\n');
@@ -123,65 +145,109 @@ void run_line(char* arg_line) {
   }
 }
 
+/*========================================
+
+  run_single_command
+
+  Runs simple commands (sans semicolons). Has different cases for commands with
+  <, >, |, and commands without those
+  Ex. ls | wc
+
+  params:
+    char* arg_line  : the simple command to be run
+
+  returns: None
+
+========================================*/
+
 void run_single_command(char* arg_line) {
-  printf("line: %s\n", arg_line);
   char* p = strchr(arg_line, '\n');
   if (p) *p = 0;
   // if the arg is not cd or exit
   char* cd_line = calloc(sizeof(char), 1024);
   strcpy(cd_line, arg_line);
-  if (cd_exit(cd_line)) { printf("not cd or exit\n");return; }
+  if (cd_exit(cd_line)) { return; }
   // if there is |
   char* pipe_line = calloc(sizeof(char), 1024);
   strcpy(pipe_line, arg_line);
-  if (pipe_execution(pipe_line)) { printf("not pipe\n");return; }
+  if (pipe_execution(pipe_line)) { return; }
   // if there is <
   char* ie_line = calloc(sizeof(char), 1024);
   strcpy(ie_line, arg_line);
-  if (input_execution(ie_line)) { printf("not <\n");return; }
+  if (input_execution(ie_line)) { return; }
   // if there is >
   char* oe_line = calloc(sizeof(char), 1024);
   strcpy(oe_line, arg_line);
-  if (output_execution(oe_line)) { printf("not >\n");return; }
+  if (output_execution(oe_line)) { return; }
 
   // else
   regular_execution(arg_line);
 
 }
 
+/*========================================
+
+  pipe_execution
+
+  Attempts to execute a command with a pipe
+  Ex. ls | wc
+
+  params:
+    char* line  : the command to be ran
+
+  returns:
+    char  : 1 if successful, 0 if not
+
+========================================*/
+
 char pipe_execution(char* line) {
-  printf("pipe\n");
   if (!strchr(line, '|')) { return 0; }
-  int pipefd[2];
-  int pid;
+  if (!fork()) {
+    int fds[2];
+    pipe(fds);
 
-  char* left = calloc(sizeof(char), 1000);
-  char* right = calloc(sizeof(char), 1000);
+    char** args = parse_args(line, "|");
 
-  strcpy(left, trim(strsep(&line, "|")));
-  strcpy(right, trim(line));
+    char** left = parse_args(args[0], " ");
+    char** right = parse_args(args[1], " ");
 
-  printf("left: %s\n", left);
-  printf("right: %s\n", right);
-
-  pipe(pipefd);
-
-  pid = fork();
-
-  if (pid == 0) {
-    dup2(pipefd[0], 0);
-    close(pipefd[1]);
-    run_single_command(right);
+    if (fork()) {
+      close(fds[0]);
+      dup2(fds[1], STDOUT_FILENO);
+      execvp(left[0], left);
+      return 1;
+    }
+    else {
+      wait(NULL);
+      close(fds[1]);
+      dup2(fds[0], STDIN_FILENO);
+      execvp(right[0], right);
+      return 1;
+    }
   }
   else {
-    dup2(pipefd[1], 1);
-    close(pipefd[0]);
-    run_single_command(left);
+    wait(NULL);
+    return 1;
   }
+  return 1;
 }
 
+/*========================================
+
+  output_execution
+
+  Attempts to execute a command that redirects output into a file (>)
+  Ex. ls > output.txt
+
+  params:
+    char* line  : the command to be ran
+
+  returns:
+    char  : 1 if successful, 0 if not
+
+========================================*/
+
 char output_execution(char* line) {
-  printf("out\n");
   if (!strchr(line, '>')) { return 0; }
   char** args = parse_args(line, ">");
   if (!fork()) {
@@ -199,7 +265,6 @@ char output_execution(char* line) {
     }
     dup2(fd, STDOUT_FILENO);
     char** commands = parse_args(args[0], " ");
-    //works up to here ^
 
     int error = execvp(commands[0], commands);
     if (error == -1) {
@@ -215,8 +280,22 @@ char output_execution(char* line) {
   }
 }
 
+/*========================================
+
+  input_execution
+
+  Attempts to execute a command that redirects input from a file (<)
+  Ex. wc < input.txt
+
+  params:
+    char* line  : the command to be ran
+
+  returns:
+    char  : 1 if successful, 0 if not
+
+========================================*/
+
 char input_execution(char* line) {
-  printf("in\n");
   if (!strchr(line, '<')) { return 0; }
   char** args = parse_args(line, "<");
   if (!fork()) {
@@ -233,12 +312,9 @@ char input_execution(char* line) {
       index++;
     }
     dup2(fd, STDIN_FILENO);
-    char* command = trim(args[0]);
-    char** rest = calloc(sizeof(char*), 2);
-    rest[0] = command;
-    rest[1] = NULL;
+    char** stuff = parse_args(args[0], " ");
 
-    int error = execvp(command, rest);
+    int error = execvp(stuff[0], stuff);
     if (error == -1) {
       printf("|%s| : That looks a lot like not a command xD\n", args[0]);
       printf("%s\n", strerror(errno));
@@ -252,12 +328,25 @@ char input_execution(char* line) {
   }
 }
 
+/*========================================
+
+  regular_execution
+
+  Attempts to execute a simple command
+  Ex. ls -al
+
+  params:
+    char* line  : the command to be ran
+
+  returns:
+    char  : 1 if successful, 0 if not
+
+========================================*/
+
 void regular_execution(char* arg_line) {
-  printf("reg\n");
   char** arg_array = parse_args(arg_line, " ");
   int index = 0;
   if (!fork()) {
-    printf("about to exec |%s|\n", arg_array[0]);
     int error = execvp(arg_array[0], arg_array);
     if (error == -1) {
       printf("%s : That looks a lot like not a command xD\n", arg_array[0]);
@@ -269,6 +358,20 @@ void regular_execution(char* arg_line) {
     wait(&status);
   }
 }
+
+/*========================================
+
+  cd_exit
+
+  Attemps to cd to a different directory, or exit the shell
+
+  params:
+    char* line  : the command to be ran
+
+  returns:
+    char  : 1 if successful, 0 if not
+
+========================================*/
 
 char cd_exit(char* arg_line) {
   char** arg_array = parse_args(arg_line, " ");
@@ -285,11 +388,6 @@ char cd_exit(char* arg_line) {
   }
   return 0;
 }
-
-/*
-  NOTE:
-  FOR PIPING, FORK, CHILD_PIPE, CHILD_FORK. WHEN CHILD DIES, MAIN FILE TABLE DOESNT MESS UP
-*/
 
 int main() {
   while (1) {
