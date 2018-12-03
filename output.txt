@@ -1,0 +1,7 @@
+README.md
+a.out
+makefile
+output.txt
+shelly.c
+shelly.h
+shelly.o

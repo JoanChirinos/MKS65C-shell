@@ -26,7 +26,7 @@
 
   returns:
     char* : the trimmed char*
-    
+
 ========================================*/
 char* trim(char* to_trim) {
   char* start = to_trim;
@@ -201,6 +201,10 @@ void run_single_command(char* arg_line) {
 ========================================*/
 
 char pipe_execution(char* line) {
+  if (line[0] == '|') {
+    printf("| : That looks a lot like not a command xD\n");
+    return 1;
+  }
   if (!strchr(line, '|')) { return 0; }
   if (!fork()) {
     int fds[2];
@@ -248,6 +252,10 @@ char pipe_execution(char* line) {
 ========================================*/
 
 char output_execution(char* line) {
+  if (line[0] == '>') {
+    printf("> : That looks a lot like not a command xD\n");
+    return 1;
+  }
   if (!strchr(line, '>')) { return 0; }
   char** args = parse_args(line, ">");
   if (!fork()) {
@@ -268,7 +276,7 @@ char output_execution(char* line) {
 
     int error = execvp(commands[0], commands);
     if (error == -1) {
-      printf("|%s| : That looks a lot like not a command xD\n", args[0]);
+      printf("%s : That looks a lot like not a command xD\n", args[0]);
       printf("%s\n", strerror(errno));
     }
     return 1;
@@ -296,6 +304,10 @@ char output_execution(char* line) {
 ========================================*/
 
 char input_execution(char* line) {
+  if (line[0] == '<') {
+    printf("< : That looks a lot like not a command xD\n");
+    return 1;
+  }
   if (!strchr(line, '<')) { return 0; }
   char** args = parse_args(line, "<");
   if (!fork()) {
@@ -316,7 +328,7 @@ char input_execution(char* line) {
 
     int error = execvp(stuff[0], stuff);
     if (error == -1) {
-      printf("|%s| : That looks a lot like not a command xD\n", args[0]);
+      printf("%s : That looks a lot like not a command xD\n", args[0]);
       printf("%s\n", strerror(errno));
     }
     return 1;
