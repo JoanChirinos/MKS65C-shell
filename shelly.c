@@ -127,14 +127,9 @@ void run_single_command(char* arg_line) {
   printf("line: %s\n", arg_line);
   char* p = strchr(arg_line, '\n');
   if (p) *p = 0;
-  else {
-    printf("no new line char\n");
-  }
   // if the arg is not cd or exit
   char* cd_line = calloc(sizeof(char), 1024);
-  printf("about to copy\n");
   strcpy(cd_line, arg_line);
-  printf("done\n");
   if (cd_exit(cd_line)) { printf("not cd or exit\n");return; }
   // if there is |
   char* pipe_line = calloc(sizeof(char), 1024);
@@ -155,6 +150,8 @@ void run_single_command(char* arg_line) {
 }
 
 char pipe_execution(char* line) {
+  printf("pipe\n");
+  if (!strchr(line, '|')) { return 0; }
   int pipefd[2];
   int pid;
 
@@ -166,12 +163,6 @@ char pipe_execution(char* line) {
 
   printf("left: %s\n", left);
   printf("right: %s\n", right);
-
-  // char** ls_args = calloc(sizeof(char*), 2);
-  // char** wc_args = calloc(sizeof(char*), 2);
-  //
-  // ls_args[0] = "ls";
-  // wc_args[0] = "wc";
 
   pipe(pipefd);
 
@@ -190,6 +181,7 @@ char pipe_execution(char* line) {
 }
 
 char output_execution(char* line) {
+  printf("out\n");
   if (!strchr(line, '>')) { return 0; }
   char** args = parse_args(line, ">");
   if (!fork()) {
@@ -224,6 +216,7 @@ char output_execution(char* line) {
 }
 
 char input_execution(char* line) {
+  printf("in\n");
   if (!strchr(line, '<')) { return 0; }
   char** args = parse_args(line, "<");
   if (!fork()) {
@@ -260,9 +253,11 @@ char input_execution(char* line) {
 }
 
 void regular_execution(char* arg_line) {
-  printf("got to regular exec\n");
+  printf("reg\n");
   char** arg_array = parse_args(arg_line, " ");
+  int index = 0;
   if (!fork()) {
+    printf("about to exec |%s|\n", arg_array[0]);
     int error = execvp(arg_array[0], arg_array);
     if (error == -1) {
       printf("%s : That looks a lot like not a command xD\n", arg_array[0]);
