@@ -90,13 +90,15 @@ char** parse_args(char* line, char* parse_at) {
 ========================================*/
 
 void print_prompt() {
-  char* cwd = getcwd(NULL, 1024);
-  // char* current_dir;
-  // while (cwd != NULL) {
-  //   current_dir = strsep(&cwd, "/");
-  // }
-  printf("\e[1;5;93;105m%s %s$\e[0m ", cwd, getlogin());
-  free(cwd);
+  if (isatty(stdin)) {
+    char* cwd = getcwd(NULL, 1024);
+    // char* current_dir;
+    // while (cwd != NULL) {
+    //   current_dir = strsep(&cwd, "/");
+    // }
+    printf("\e[1;5;93;105m%s %s$\e[0m ", cwd, getlogin());
+    free(cwd);
+  }
 }
 
 /*========================================
