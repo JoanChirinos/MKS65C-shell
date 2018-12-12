@@ -90,7 +90,7 @@ char** parse_args(char* line, char* parse_at) {
 ========================================*/
 
 void print_prompt() {
-  if (isatty(stdin)) {
+  if (isatty(STDIN_FILENO)) {
     char* cwd = getcwd(NULL, 1024);
     // char* current_dir;
     // while (cwd != NULL) {
